@@ -87,7 +87,7 @@ export default function Home() {
                                     </span>
                                   </div>
                                   <Button type="text" size="small" asChild>
-                                    <Link href="/...">Start course ➔</Link>
+                                    <Link href="/foundations/introduction">Start course ➔</Link>
                                   </Button>
                                 </div>
                               </div>

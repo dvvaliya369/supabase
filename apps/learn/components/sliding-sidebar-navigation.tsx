@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Info } from 'lucide-react'
 import { ScrollArea, cn } from 'ui'
 import { courses } from '@/config/docs'
 import { useMobileMenu } from '@/hooks/use-mobile-menu'
@@ -240,12 +240,10 @@ export default function SlidingSidebarNavigation() {
                 <span>Courses</span>
               </button>
 
-              {/* Course title */}
+              {/* Chapters heading */}
               {navState.selectedCourse && (
                 <>
-                  <h2 className="text-lg font-semibold text-foreground mb-6">
-                    {navState.selectedCourse.title}
-                  </h2>
+                  <h2 className="text-lg font-semibold text-foreground mb-6">Chapters</h2>
 
                   {(() => {
                     const { standalone, modules } = getStandaloneAndModules(
@@ -256,22 +254,28 @@ export default function SlidingSidebarNavigation() {
                         {/* Standalone lessons */}
                         {standalone.length > 0 && (
                           <ul className="space-y-1 mb-6">
-                            {standalone.map((item) => (
-                              <li key={item.href}>
-                                <Link
-                                  href={item.href || '#'}
-                                  onClick={handleLessonClick}
-                                  className={cn(
-                                    'block px-3 py-2 text-sm rounded-md transition-colors',
-                                    pathname === item.href
-                                      ? 'bg-brand-500/10 text-foreground font-medium'
-                                      : 'text-foreground-light hover:bg-surface-100 hover:text-foreground'
-                                  )}
-                                >
-                                  {item.title}
-                                </Link>
-                              </li>
-                            ))}
+                            {standalone.map((item) => {
+                              const isIntroduction = item.title.toLowerCase().includes('introduction')
+                              return (
+                                <li key={item.href}>
+                                  <Link
+                                    href={item.href || '#'}
+                                    onClick={handleLessonClick}
+                                    className={cn(
+                                      'flex items-center justify-between px-3 py-2 text-sm rounded-md transition-colors font-semibold',
+                                      pathname === item.href
+                                        ? 'bg-brand-500/10 text-foreground'
+                                        : 'text-foreground hover:bg-surface-100'
+                                    )}
+                                  >
+                                    <span>{item.title}</span>
+                                    {isIntroduction && (
+                                      <Info className="w-5 h-5 text-foreground-muted" strokeWidth={2} />
+                                    )}
+                                  </Link>
+                                </li>
+                              )
+                            })}
                           </ul>
                         )}
 
@@ -284,18 +288,16 @@ export default function SlidingSidebarNavigation() {
                                 <button
                                   onClick={() => handleModuleClick(module)}
                                   className={cn(
-                                    'w-full text-left px-3 py-2 text-sm rounded-md transition-colors group flex items-center justify-between',
+                                    'w-full text-left px-3 py-2 text-sm rounded-md transition-colors flex items-center justify-between',
                                     isActive
-                                      ? 'bg-brand-500/5 text-foreground'
-                                      : 'text-foreground-light hover:bg-surface-100 hover:text-foreground'
+                                      ? 'bg-brand-500/5 text-foreground font-semibold'
+                                      : 'text-foreground hover:bg-surface-100'
                                   )}
                                 >
                                   <span>{module.title}</span>
                                   <ChevronRight
-                                    className={cn(
-                                      'w-4 h-4 transition-opacity',
-                                      isActive ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
-                                    )}
+                                    className="w-5 h-5 text-foreground-muted"
+                                    strokeWidth={2}
                                   />
                                 </button>
                               </li>
@@ -326,7 +328,7 @@ export default function SlidingSidebarNavigation() {
                 className="flex items-center gap-1.5 text-xs text-foreground-muted hover:text-foreground mb-4 transition-colors"
               >
                 <ChevronLeft className="w-3.5 h-3.5" />
-                <span>Back to {navState.selectedCourse?.title}</span>
+                <span>Chapters</span>
               </button>
 
               {/* Module title */}
@@ -346,8 +348,8 @@ export default function SlidingSidebarNavigation() {
                           className={cn(
                             'block px-3 py-2 text-sm rounded-md transition-colors',
                             pathname === lesson.href
-                              ? 'bg-brand-500/10 text-foreground font-medium'
-                              : 'text-foreground-light hover:bg-surface-100 hover:text-foreground'
+                              ? 'bg-brand-500/10 text-foreground font-semibold'
+                              : 'text-foreground hover:bg-surface-100'
                           )}
                         >
                           {lesson.title}

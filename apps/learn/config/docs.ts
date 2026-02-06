@@ -12,7 +12,7 @@ export const courses: SidebarNavGroup = {
           href: '/foundations/introduction',
         },
         {
-          title: 'Architecture and Platform Fundamentals',
+          title: 'Platform Architecture',
           items: [
             {
               title: 'Supabase Architecture',
@@ -33,7 +33,7 @@ export const courses: SidebarNavGroup = {
           ],
         },
         {
-          title: 'Database Design and Postgres Essentials',
+          title: 'Database Design & Postgres',
           items: [
             {
               title: 'Schema Design for Supabase',
@@ -62,7 +62,7 @@ export const courses: SidebarNavGroup = {
           ],
         },
         {
-          title: 'Authentication and User Management',
+          title: 'Authentication & Users',
           items: [
             {
               title: 'Authentication Fundamentals',
@@ -110,7 +110,7 @@ export const courses: SidebarNavGroup = {
               href: '/foundations/04-05-performance-optimization',
             },
             {
-              title: 'Common Pitfalls and Debugging',
+              title: 'Pitfalls & Debugging',
               href: '/foundations/04-06-common-pitfalls-and-debugging',
             },
           ],
@@ -227,7 +227,7 @@ export const courses: SidebarNavGroup = {
               href: '/foundations/09-01-performance-optimization',
             },
             {
-              title: 'Monitoring and Observability',
+              title: 'Monitoring & Observability',
               href: '/foundations/09-02-monitoring-and-observability',
             },
             {

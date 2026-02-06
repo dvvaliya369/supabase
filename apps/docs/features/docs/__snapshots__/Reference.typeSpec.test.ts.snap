@@ -86865,6 +86865,66 @@ exports[`TS type spec parsing > matches snapshot 1`] = `
               "name": "Options"
             },
             "isOptional": true
+          },
+          {
+            "name": "parameters",
+            "type": {
+              "type": "object",
+              "name": "FetchParameters",
+              "properties": [
+                {
+                  "name": "cache",
+                  "type": {
+                    "type": "union",
+                    "subTypes": [
+                      {
+                        "type": "literal",
+                        "value": "default"
+                      },
+                      {
+                        "type": "literal",
+                        "value": "no-store"
+                      },
+                      {
+                        "type": "literal",
+                        "value": "reload"
+                      },
+                      {
+                        "type": "literal",
+                        "value": "no-cache"
+                      },
+                      {
+                        "type": "literal",
+                        "value": "force-cache"
+                      },
+                      {
+                        "type": "literal",
+                        "value": "only-if-cached"
+                      }
+                    ]
+                  },
+                  "isOptional": true,
+                  "comment": {
+                    "shortText": "Controls how the request interacts with the browser's HTTP cache.\\n- 'default': Use standard cache behavior\\n- 'no-store': Bypass cache entirely (useful in Edge Functions)\\n- 'reload': Bypass cache but update it with response\\n- 'no-cache': Validate with server before using cached response\\n- 'force-cache': Use cache even if stale\\n- 'only-if-cached': Only use cache, fail if not cached"
+                  }
+                },
+                {
+                  "name": "signal",
+                  "type": {
+                    "type": "nameOnly",
+                    "name": "AbortSignal"
+                  },
+                  "isOptional": true,
+                  "comment": {
+                    "shortText": "Pass in an AbortController's signal to cancel the request."
+                  }
+                }
+              ]
+            },
+            "isOptional": true,
+            "comment": {
+              "shortText": "Additional fetch parameters like signal for cancellation. Supports standard fetch options including cache control."
+            }
           }
         ],
         "ret": {
@@ -86886,6 +86946,16 @@ exports[`TS type spec parsing > matches snapshot 1`] = `
               "id": "download-file-with-transformations",
               "name": "Download file with transformations",
               "code": "\`\`\`js\\nconst { data, error } = await supabase\\n  .storage\\n  .from('avatars')\\n  .download('folder/avatar1.png', {\\n    transform: {\\n      width: 100,\\n      height: 100,\\n      quality: 80\\n    }\\n  })\\n\`\`\`"
+            },
+            {
+              "id": "download-with-cache-control-useful-in-edge-functions",
+              "name": "Download with cache control (useful in Edge Functions)",
+              "code": "\`\`\`js\\nconst { data, error } = await supabase\\n  .storage\\n  .from('avatars')\\n  .download('folder/avatar1.png', {}, { cache: 'no-store' })\\n\`\`\`"
+            },
+            {
+              "id": "download-with-abort-signal",
+              "name": "Download with abort signal",
+              "code": "\`\`\`js\\nconst controller = new AbortController()\\nsetTimeout(() => controller.abort(), 5000)\\n\\nconst { data, error } = await supabase\\n  .storage\\n  .from('avatars')\\n  .download('folder/avatar1.png', {}, { signal: controller.signal })\\n\`\`\`"
             }
           ]
         }
@@ -87302,6 +87372,42 @@ exports[`TS type spec parsing > matches snapshot 1`] = `
               "name": "FetchParameters",
               "properties": [
                 {
+                  "name": "cache",
+                  "type": {
+                    "type": "union",
+                    "subTypes": [
+                      {
+                        "type": "literal",
+                        "value": "default"
+                      },
+                      {
+                        "type": "literal",
+                        "value": "no-store"
+                      },
+                      {
+                        "type": "literal",
+                        "value": "reload"
+                      },
+                      {
+                        "type": "literal",
+                        "value": "no-cache"
+                      },
+                      {
+                        "type": "literal",
+                        "value": "force-cache"
+                      },
+                      {
+                        "type": "literal",
+                        "value": "only-if-cached"
+                      }
+                    ]
+                  },
+                  "isOptional": true,
+                  "comment": {
+                    "shortText": "Controls how the request interacts with the browser's HTTP cache.\\n- 'default': Use standard cache behavior\\n- 'no-store': Bypass cache entirely (useful in Edge Functions)\\n- 'reload': Bypass cache but update it with response\\n- 'no-cache': Validate with server before using cached response\\n- 'force-cache': Use cache even if stale\\n- 'only-if-cached': Only use cache, fail if not cached"
+                  }
+                },
+                {
                   "name": "signal",
                   "type": {
                     "type": "nameOnly",
@@ -87662,6 +87768,42 @@ exports[`TS type spec parsing > matches snapshot 1`] = `
               "type": "object",
               "name": "FetchParameters",
               "properties": [
+                {
+                  "name": "cache",
+                  "type": {
+                    "type": "union",
+                    "subTypes": [
+                      {
+                        "type": "literal",
+                        "value": "default"
+                      },
+                      {
+                        "type": "literal",
+                        "value": "no-store"
+                      },
+                      {
+                        "type": "literal",
+                        "value": "reload"
+                      },
+                      {
+                        "type": "literal",
+                        "value": "no-cache"
+                      },
+                      {
+                        "type": "literal",
+                        "value": "force-cache"
+                      },
+                      {
+                        "type": "literal",
+                        "value": "only-if-cached"
+                      }
+                    ]
+                  },
+                  "isOptional": true,
+                  "comment": {
+                    "shortText": "Controls how the request interacts with the browser's HTTP cache.\\n- 'default': Use standard cache behavior\\n- 'no-store': Bypass cache entirely (useful in Edge Functions)\\n- 'reload': Bypass cache but update it with response\\n- 'no-cache': Validate with server before using cached response\\n- 'force-cache': Use cache even if stale\\n- 'only-if-cached': Only use cache, fail if not cached"
+                  }
+                },
                 {
                   "name": "signal",
                   "type": {

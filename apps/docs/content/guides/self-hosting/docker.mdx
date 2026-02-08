@@ -495,13 +495,75 @@ postgres://postgres:[POSTGRES_PASSWORD]@[your-server-ip]:5432/[POSTGRES_DB]
 
 ### Changing database password
 
-To change the database password after initial setup, run:
+<Admonition type="danger">
+
+Do **not** change `POSTGRES_PASSWORD` in the `.env` file and restart. The password stored inside the running Postgres database will still be the old value, so every service that connects to Postgres — Auth, PostgREST, Storage, Realtime, Analytics, and Supavisor — will fail to authenticate. You must update the password **inside the database** first.
+
+</Admonition>
+
+#### Using the password utility (recommended)
+
+The included helper script updates all 12 internal database roles, refreshes the Supavisor and Analytics connection metadata, and patches your `.env` file — all in one step.
+
+1. Make sure you are in the `docker` directory (the one containing `docker-compose.yml` and `.env`).
+2. Run the script while the database container is running:
 
 ```sh
 sh ./utils/db-passwd.sh
 ```
 
-The script generates a new password, updates all database roles, and modifies your `.env` file. After running it, restart the services with `docker compose up -d --force-recreate`.
+3. The script will display the new password and ask for confirmation. After it finishes, restart all services so they pick up the new credentials:
+
+```sh
+docker compose up -d --force-recreate
+```
+
+<Admonition type="tip">
+
+The script generates a random hex password (`openssl rand -hex 16`) that is safe for use in connection strings. If you prefer a custom password, edit the `new_passwd` variable inside `utils/db-passwd.sh` before running it — but avoid special characters like `@`, `?`, `#`, `:`, and `&` that require URL encoding. See [password guidelines](/docs/guides/database/postgres/roles#passwords).
+
+</Admonition>
+
+#### What the script does
+
+Under the hood, `db-passwd.sh` performs the following:
+
+1. Generates a new password and connects to the Postgres container.
+2. Runs `ALTER USER ... WITH PASSWORD` for every internal role (`postgres`, `supabase_admin`, `authenticator`, `anon`, `authenticated`, `service_role`, and others).
+3. Drops and recreates the `_supavisor` schema so Supavisor picks up the new credentials on restart.
+4. Updates the connection string stored in `_analytics.source_backends` (if the table exists).
+5. Writes the new `POSTGRES_PASSWORD` value into your `.env` file.
+
+#### Starting fresh (nuclear option)
+
+If you are unable to run the script — for example, the database container won't start because of an earlier `.env`-only change — you can reset everything by removing the database volume and re-initializing:
+
+<Admonition type="danger">
+
+This **destroys all data** in your Supabase database. Only use this on a fresh or disposable installation.
+
+</Admonition>
+
+```sh
+# 1. Stop all services
+docker compose down
+
+# 2. Remove the database volume (THIS DELETES ALL DATA)
+docker volume rm supabase_db-config
+
+# 3. Update POSTGRES_PASSWORD in .env to your new password
+
+# 4. Start everything — Postgres will initialize with the new password
+docker compose up -d
+```
+
+#### Troubleshooting
+
+| Symptom | Likely cause | Fix |
+| --- | --- | --- |
+| Services crash-loop after changing `.env` | Password mismatch — `.env` was updated but database roles still use the old password | Run `db-passwd.sh` or use the nuclear option above |
+| `db-passwd.sh` says "Postgres container not found" | The database container is not running | Start it with `docker compose up -d db` and retry |
+| Connection refused after restart | Services started before Postgres was ready | Wait a few seconds and run `docker compose restart` |
 
 #### File storage backend on macOS
 

@@ -108,8 +108,8 @@ const InsertButton = () => {
   )
   const { mutate: sendEvent } = useSendEventMutation()
 
-  const onAddRow =
-    snap.editable && (snap.table.columns ?? []).length > 0 ? tableEditorSnap.onAddRow : undefined
+  const hasColumns = (snap.table.columns ?? []).length > 0
+  const onAddRow = snap.editable && hasColumns ? tableEditorSnap.onAddRow : undefined
   const onAddColumn = snap.editable ? tableEditorSnap.onAddColumn : undefined
   const onImportData = snap.editable ? tableEditorSnap.onImportData : undefined
 

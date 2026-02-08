@@ -495,13 +495,117 @@ postgres://postgres:[POSTGRES_PASSWORD]@[your-server-ip]:5432/[POSTGRES_DB]
 
 ### Changing database password
 
-To change the database password after initial setup, run:
+<Admonition type="danger">
+
+  Simply changing `POSTGRES_PASSWORD` in the `.env` file will cause authentication errors and break your Supabase installation. You must update both the database roles and configuration files.
+
+</Admonition>
+
+When you change the database password, you need to update it in three places:
+
+1. All database user roles (postgres, supabase_admin, authenticator, and others)
+2. The `.env` configuration file
+3. Restart all services to pick up the new password
+
+#### Using the automated script (recommended)
+
+The easiest way to change the password is to use the provided script:
 
 ```sh
 sh ./utils/db-passwd.sh
 ```
 
-The script generates a new password, updates all database roles, and modifies your `.env` file. After running it, restart the services with `docker compose up -d --force-recreate`.
+The script will:
+
+1. Generate a secure random password (or you can modify the script to use your own)
+2. Update passwords for all database roles (postgres, supabase_admin, authenticator, and service-specific users)
+3. Update the `POSTGRES_PASSWORD` value in your `.env` file
+4. Provide instructions for restarting services
+
+After the script completes successfully, restart all services:
+
+```sh
+docker compose up -d --force-recreate
+```
+
+<Admonition type="tip">
+
+  The `--force-recreate` flag ensures all containers are recreated with the new password from `.env`. This is critical for services like Auth, Studio, and Storage that connect to Postgres.
+
+</Admonition>
+
+#### Why this process is necessary
+
+Your Supabase Docker installation has multiple services that connect to Postgres using different database roles:
+
+- **Auth (GoTrue)**: Uses `supabase_auth_admin` role
+- **Storage**: Uses `supabase_storage_admin` role
+- **Functions**: Uses `supabase_functions_admin` role
+- **Studio**: Uses `postgres` and `supabase_admin` roles
+- **Realtime**: Uses `supabase_admin` role
+
+All these roles must have their passwords updated to match `POSTGRES_PASSWORD` in the `.env` file. Simply changing the `.env` file doesn't update the actual passwords stored in Postgres, causing authentication failures like:
+
+```
+FATAL: password authentication failed for user "supabase_auth_admin"
+```
+
+#### Manual password change (advanced)
+
+If you prefer to set a custom password manually:
+
+1. **Stop all services** (except the database):
+
+```sh
+docker compose stop auth rest storage realtime functions studio kong
+```
+
+2. **Connect to Postgres** and update all role passwords:
+
+```sh
+docker compose exec db psql -U supabase_admin -d _supabase
+```
+
+Then run these SQL commands, replacing `your-new-password` with your chosen password:
+
+```sql
+ALTER USER postgres WITH PASSWORD 'your-new-password';
+ALTER USER supabase_admin WITH PASSWORD 'your-new-password';
+ALTER USER authenticator WITH PASSWORD 'your-new-password';
+ALTER USER anon WITH PASSWORD 'your-new-password';
+ALTER USER authenticated WITH PASSWORD 'your-new-password';
+ALTER USER service_role WITH PASSWORD 'your-new-password';
+ALTER USER supabase_auth_admin WITH PASSWORD 'your-new-password';
+ALTER USER supabase_storage_admin WITH PASSWORD 'your-new-password';
+ALTER USER supabase_functions_admin WITH PASSWORD 'your-new-password';
+ALTER USER supabase_replication_admin WITH PASSWORD 'your-new-password';
+ALTER USER dashboard_user WITH PASSWORD 'your-new-password';
+ALTER USER pgbouncer WITH PASSWORD 'your-new-password';
+
+-- If using Supavisor, reset its schema
+DROP SCHEMA _supavisor CASCADE;
+CREATE SCHEMA _supavisor;
+ALTER SCHEMA _supavisor OWNER TO supabase_admin;
+```
+
+3. **Update the `.env` file**:
+
+```sh
+# Edit .env and change POSTGRES_PASSWORD to your new password
+nano .env
+```
+
+4. **Restart all services**:
+
+```sh
+docker compose up -d --force-recreate
+```
+
+<Admonition type="tip">
+
+  Follow the [password guidelines](/docs/guides/database/postgres/roles#passwords) when choosing a password. Use only letters and numbers to avoid URL encoding issues in connection strings.
+
+</Admonition>
 
 #### File storage backend on macOS
 

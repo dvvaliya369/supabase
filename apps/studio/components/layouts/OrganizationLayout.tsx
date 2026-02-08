@@ -8,10 +8,11 @@ import { useVercelRedirectQuery } from 'data/integrations/vercel-redirect-query'
 import { useSelectedOrganizationQuery } from 'hooks/misc/useSelectedOrganization'
 import { withAuth } from 'hooks/misc/withAuth'
 import { MANAGED_BY } from 'lib/constants/infrastructure'
-import { Alert_Shadcn_, AlertTitle_Shadcn_, Button, cn } from 'ui'
+import { Alert_Shadcn_, AlertTitle_Shadcn_, Button, cn, useSidebar } from 'ui'
 
 const OrganizationLayoutContent = ({ children }: PropsWithChildren) => {
   const { data: selectedOrganization } = useSelectedOrganizationQuery()
+  const { open: sidebarOpen } = useSidebar()
 
   const vercelQuery = useVercelRedirectQuery(
     {
@@ -53,7 +54,14 @@ const OrganizationLayoutContent = ({ children }: PropsWithChildren) => {
           </Button>
         </Alert_Shadcn_>
       )}
-      <main className="h-full w-full overflow-y-auto flex flex-col">{children}</main>
+      <main
+        className={cn(
+          'h-full w-full overflow-y-auto flex flex-col transition-all duration-200',
+          sidebarOpen && 'md:ml-[--sidebar-width]'
+        )}
+      >
+        {children}
+      </main>
     </div>
   )
 }

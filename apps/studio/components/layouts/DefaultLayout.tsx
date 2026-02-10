@@ -80,7 +80,7 @@ export const DefaultLayout = ({
               {/* Main Content with Layout Sidebar */}
               <ResizablePanelGroup
                 direction="horizontal"
-                className="h-full w-full overflow-x-hidden flex-1 flex flex-row gap-0"
+                className="h-full w-full overflow-x-hidden flex-1 flex flex-row gap-0 peer-data-[state=expanded]:ml-[--sidebar-width] md:peer-data-[collapsible=icon]:peer-data-[state=expanded]:ml-[--sidebar-width]"
                 autoSaveId="default-layout-content"
               >
                 <ResizablePanel

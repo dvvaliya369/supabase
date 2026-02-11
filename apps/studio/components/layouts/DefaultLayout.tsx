@@ -77,10 +77,14 @@ export const DefaultLayout = ({
             <div className="flex flex-1 w-full overflow-y-hidden">
               {/* Sidebar - Only show for project pages, not account pages */}
               {!router.pathname.startsWith('/account') && <Sidebar />}
-              {/* Main Content with Layout Sidebar */}
+              {/* Main Content with Layout Sidebar - Add left margin to account for sidebar width */}
               <ResizablePanelGroup
                 direction="horizontal"
-                className="h-full w-full overflow-x-hidden flex-1 flex flex-row gap-0"
+                className={cn(
+                  "h-full w-full overflow-x-hidden flex-1 flex flex-row gap-0",
+                  // Add left margin when sidebar is present to prevent overlap
+                  !router.pathname.startsWith('/account') && "md:ml-[3rem] md:peer-data-[state=expanded]:ml-[13rem] transition-[margin-left] duration-100 ease-linear"
+                )}
                 autoSaveId="default-layout-content"
               >
                 <ResizablePanel

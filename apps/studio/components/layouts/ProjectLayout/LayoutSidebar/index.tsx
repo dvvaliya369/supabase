@@ -31,11 +31,8 @@ export const LayoutSidebar = ({
         minSize={minSize}
         maxSize={maxSize}
         className={cn(
-          'border-l bg fixed z-40 right-0 top-0 bottom-0',
-          'h-[100dvh]',
-          'md:absolute md:h-auto md:w-1/2',
-          'lg:w-2/5',
-          'xl:relative xl:border-l-0'
+          'border-l bg',
+          'relative border-l-0'
         )}
       >
         {activeSidebar?.component()}

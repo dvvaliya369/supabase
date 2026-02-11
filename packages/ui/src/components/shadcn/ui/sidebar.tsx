@@ -221,7 +221,7 @@ const Sidebar = React.forwardRef<
         <div
           className={cn(
             overflowing ? 'absolute top-0' : 'relative',
-            'duration-100 h-full w-[--sidebar-width] bg-transparent transition-[width] ease-linear',
+            'duration-200 h-full w-[--sidebar-width] bg-transparent transition-[width] ease-linear',
             'group-data-[collapsible=offcanvas]:w-0',
             'group-data-[side=right]:rotate-180',
             variant === 'floating' || variant === 'inset'
@@ -233,7 +233,7 @@ const Sidebar = React.forwardRef<
           className={cn(
             'absolute top-0 h-full', // sidebar custom changes - We have also removed 'fixed', and 'h-svh'
             //
-            'duration-100 inset-y-0 z-10 hidden w-[--sidebar-width] transition-[left,right,width] ease-linear md:flex',
+            'duration-200 inset-y-0 z-10 hidden w-[--sidebar-width] transition-[left,right,width] ease-linear md:flex',
             overflowing && 'z-30',
             overflowing && state === 'expanded' && 'shadow-xl',
             side === 'left'

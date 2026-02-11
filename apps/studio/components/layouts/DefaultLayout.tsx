@@ -7,7 +7,7 @@ import { Sidebar } from 'components/interfaces/Sidebar'
 import { useLocalStorageQuery } from 'hooks/misc/useLocalStorage'
 import { useCheckLatestDeploy } from 'hooks/use-check-latest-deploy'
 import { useAppStateSnapshot } from 'state/app-state'
-import { ResizablePanel, ResizablePanelGroup, SidebarProvider } from 'ui'
+import { ResizablePanel, ResizablePanelGroup, SidebarProvider, useSidebar, cn } from 'ui'
 import { LayoutHeader } from './ProjectLayout/LayoutHeader/LayoutHeader'
 import { LayoutSidebar } from './ProjectLayout/LayoutSidebar'
 import { LayoutSidebarProvider } from './ProjectLayout/LayoutSidebar/LayoutSidebarProvider'
@@ -29,7 +29,7 @@ export interface DefaultLayoutProps {
  * - Mobile navigation bar
  * - First level side navigation bar (e.g For navigating to Table Editor, SQL Editor, Database page, etc)
  */
-export const DefaultLayout = ({
+const DefaultLayoutContent = ({
   children,
   headerTitle,
   hideMobileMenu,
@@ -56,54 +56,76 @@ export const DefaultLayout = ({
   const contentMinSizePercentage = 50
   const contentMaxSizePercentage = 70
 
+  // Get sidebar state for dynamic margin adjustment
+  const { state: sidebarState } = useSidebar()
+  const [sidebarBehaviour] = useLocalStorageQuery(
+    LOCAL_STORAGE_KEYS.SIDEBAR_BEHAVIOR,
+    'expandable'
+  )
+
+  // Calculate if content should be pushed when sidebar expands
+  const isExpandable = sidebarBehaviour === 'expandable'
+  const isExpanded = sidebarState === 'expanded'
+  const shouldPushContent = isExpandable && isExpanded && !router.pathname.startsWith('/account')
+
+  return (
+    <LayoutSidebarProvider>
+      <ProjectContextProvider projectRef={ref}>
+        <div className="flex flex-col h-screen w-screen">
+          {/* Top Banner */}
+          <AppBannerWrapper />
+          <div className="flex-shrink-0">
+            <MobileNavigationBar hideMobileMenu={hideMobileMenu} />
+            <LayoutHeader
+              showProductMenu={showProductMenu}
+              headerTitle={headerTitle}
+              backToDashboardURL={
+                router.pathname.startsWith('/account') ? backToDashboardURL : undefined
+              }
+            />
+          </div>
+          {/* Main Content Area */}
+          <div className="flex flex-1 w-full overflow-y-hidden">
+            {/* Sidebar - Only show for project pages, not account pages */}
+            {!router.pathname.startsWith('/account') && <Sidebar />}
+            {/* Main Content with Layout Sidebar */}
+            <ResizablePanelGroup
+              direction="horizontal"
+              className={cn(
+                "h-full w-full overflow-x-hidden flex-1 flex flex-row gap-0",
+                shouldPushContent && "ml-[10rem]",
+                "transition-[margin] duration-200 ease-linear"
+              )}
+              autoSaveId="default-layout-content"
+            >
+              <ResizablePanel
+                id="panel-content"
+                order={1}
+                className="w-full"
+                minSize={contentMinSizePercentage}
+                maxSize={contentMaxSizePercentage}
+                defaultSize={contentMaxSizePercentage}
+              >
+                <div className="h-full overflow-y-auto">{children}</div>
+              </ResizablePanel>
+              <LayoutSidebar
+                order={2}
+                minSize={100 - contentMaxSizePercentage}
+                maxSize={100 - contentMinSizePercentage}
+                defaultSize={100 - contentMaxSizePercentage}
+              />
+            </ResizablePanelGroup>
+          </div>
+        </div>
+      </ProjectContextProvider>
+    </LayoutSidebarProvider>
+  )
+}
+
+export const DefaultLayout = (props: PropsWithChildren<DefaultLayoutProps>) => {
   return (
     <SidebarProvider defaultOpen={false}>
-      <LayoutSidebarProvider>
-        <ProjectContextProvider projectRef={ref}>
-          <div className="flex flex-col h-screen w-screen">
-            {/* Top Banner */}
-            <AppBannerWrapper />
-            <div className="flex-shrink-0">
-              <MobileNavigationBar hideMobileMenu={hideMobileMenu} />
-              <LayoutHeader
-                showProductMenu={showProductMenu}
-                headerTitle={headerTitle}
-                backToDashboardURL={
-                  router.pathname.startsWith('/account') ? backToDashboardURL : undefined
-                }
-              />
-            </div>
-            {/* Main Content Area */}
-            <div className="flex flex-1 w-full overflow-y-hidden">
-              {/* Sidebar - Only show for project pages, not account pages */}
-              {!router.pathname.startsWith('/account') && <Sidebar />}
-              {/* Main Content with Layout Sidebar */}
-              <ResizablePanelGroup
-                direction="horizontal"
-                className="h-full w-full overflow-x-hidden flex-1 flex flex-row gap-0"
-                autoSaveId="default-layout-content"
-              >
-                <ResizablePanel
-                  id="panel-content"
-                  order={1}
-                  className="w-full"
-                  minSize={contentMinSizePercentage}
-                  maxSize={contentMaxSizePercentage}
-                  defaultSize={contentMaxSizePercentage}
-                >
-                  <div className="h-full overflow-y-auto">{children}</div>
-                </ResizablePanel>
-                <LayoutSidebar
-                  order={2}
-                  minSize={100 - contentMaxSizePercentage}
-                  maxSize={100 - contentMinSizePercentage}
-                  defaultSize={100 - contentMaxSizePercentage}
-                />
-              </ResizablePanelGroup>
-            </div>
-          </div>
-        </ProjectContextProvider>
-      </LayoutSidebarProvider>
+      <DefaultLayoutContent {...props} />
     </SidebarProvider>
   )
 }
